@@ -13,7 +13,7 @@
   .card { background: #22222e; border-radius: 14px; margin: 1rem auto; padding: 1rem; max-width: 520px; width: calc(100% - 2rem); box-sizing: border-box; }
   .card h2 { font-family: 'Chewy', system-ui, sans-serif; font-weight: 400; font-size: 1.4rem; margin: 0 0 .6rem; }
   .card img { width: 100%; height: auto; border-radius: 8px; background: #000; display: block; }
-  .btn { display: inline-block; margin-top: .8rem; padding: .6rem 1.4rem; border-radius: 999px; background: #ffcc00; color: #000; text-decoration: none; font-weight: 700; }
+  .btn { cursor: pointer; display: inline-block; margin-top: .8rem; padding: .6rem 1.4rem; border-radius: 999px; background: #ffcc00; color: #000; text-decoration: none; font-weight: 700; }
   .note { color: #999; font-size: .85rem; margin: 1.5rem 1rem 2rem; }
   #oops { display: none; color: #ff8080; margin: 2rem 1rem; }
 </style>
@@ -25,22 +25,34 @@
   <div class="card" id="a" style="display:none">
     <h2>Your framed photo</h2>
     <img alt="Your framed photo">
-    <a class="btn" download>Download</a>
+    <a class="btn" role="button">Download</a>
   </div>
   <div class="card" id="b" style="display:none">
     <h2>Your original photo</h2>
     <img alt="Your original camera photo">
-    <a class="btn" download>Download</a>
+    <a class="btn" role="button">Download</a>
   </div>
   <p class="note">Save your photos today &mdash; the booth clears its folder regularly.</p>
 <script>
+  // Same address as the preview (never asks for a Google sign-in). Save it as a file if the browser allows,
+  // otherwise just open the picture so it can be pressed and held to save.
+  function saveFile(url, btn, name, e) {
+    e.preventDefault();
+    fetch(url).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (blob) {
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+    }).catch(function () { window.location.href = url; });
+  }
   var q = new URLSearchParams(location.search), shown = 0;
   ["a", "b"].forEach(function (k) {
     var id = q.get(k);
     if (!id || !/^[A-Za-z0-9_-]{10,80}$/.test(id)) return;      // only plain Drive file ids
     var card = document.getElementById(k);
-    card.querySelector("img").src = "https://lh3.googleusercontent.com/d/" + id;
-    card.querySelector("a").href = "https://drive.google.com/uc?export=download&id=" + id;
+    var url = "https://lh3.googleusercontent.com/d/" + id, btn = card.querySelector("a");
+    card.querySelector("img").src = url;
+    btn.href = url;                                           // fallback: opens the picture itself (no sign-in)
+    btn.addEventListener("click", saveFile.bind(null, url, btn, k === "a" ? "gesture-booth-framed.png" : "gesture-booth-original.jpg"));
     card.style.display = "block";
     shown++;
   });
