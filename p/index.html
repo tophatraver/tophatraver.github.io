@@ -1,5 +1,50 @@
-Your photos!
-Press and hold a picture to save it, or use the buttons.
-
-Sorry, this link is missing its pictures. Try scanning the code again.
-Save your photos today — the booth clears its folder regularly.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your Gesture Booth photos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chewy&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #14141c; color: #fff; font-family: system-ui, sans-serif; text-align: center; }
+  h1 { font-family: 'Chewy', system-ui, sans-serif; font-weight: 400; color: #ffcc00; font-size: 2.2rem; margin: 1.2rem 1rem .2rem; }
+  p.sub { margin: 0 1rem 1rem; color: #bbb; }
+  .card { background: #22222e; border-radius: 14px; margin: 1rem auto; padding: 1rem; max-width: 520px; width: calc(100% - 2rem); box-sizing: border-box; }
+  .card h2 { font-family: 'Chewy', system-ui, sans-serif; font-weight: 400; font-size: 1.4rem; margin: 0 0 .6rem; }
+  .card img { width: 100%; height: auto; border-radius: 8px; background: #000; display: block; }
+  .btn { display: inline-block; margin-top: .8rem; padding: .6rem 1.4rem; border-radius: 999px; background: #ffcc00; color: #000; text-decoration: none; font-weight: 700; }
+  .note { color: #999; font-size: .85rem; margin: 1.5rem 1rem 2rem; }
+  #oops { display: none; color: #ff8080; margin: 2rem 1rem; }
+</style>
+</head>
+<body>
+  <h1>Your photos!</h1>
+  <p class="sub">Press and hold a picture to save it, or use the buttons.</p>
+  <div id="oops">Sorry, this link is missing its pictures. Try scanning the code again.</div>
+  <div class="card" id="a" style="display:none">
+    <h2>Your framed photo</h2>
+    <img alt="Your framed photo">
+    <a class="btn" download>Download</a>
+  </div>
+  <div class="card" id="b" style="display:none">
+    <h2>Your original photo</h2>
+    <img alt="Your original camera photo">
+    <a class="btn" download>Download</a>
+  </div>
+  <p class="note">Save your photos today &mdash; the booth clears its folder regularly.</p>
+<script>
+  var q = new URLSearchParams(location.search), shown = 0;
+  ["a", "b"].forEach(function (k) {
+    var id = q.get(k);
+    if (!id || !/^[A-Za-z0-9_-]{10,80}$/.test(id)) return;      // only plain Drive file ids
+    var card = document.getElementById(k);
+    card.querySelector("img").src = "https://lh3.googleusercontent.com/d/" + id;
+    card.querySelector("a").href = "https://drive.google.com/uc?export=download&id=" + id;
+    card.style.display = "block";
+    shown++;
+  });
+  if (!shown) document.getElementById("oops").style.display = "block";
+</script>
+</body>
+</html>
